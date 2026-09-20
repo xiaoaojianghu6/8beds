@@ -1,0 +1,945 @@
+/*
+ * 八张床 · DOM 渲染层全套样式。
+ *
+ * 设计纪律（docs/level-design/04-ART-DIRECTION.md）：
+ *   - 色板锁定 8 色，红只留给病危，amber 正文用 amberInk。
+ *   - 信息全部代码画；AI 素材只做「实体」（床、人、帘、污渍、场景插画）。
+ *   - 白底素材用 mix-blend-mode: multiply 融进暖白界面（扁平矢量画无损失）。
+ *
+ * 布局两套：
+ *   桌面 ≥900px —— 左侧病房地板（8 床 + 6 竖轨 + 4 横轨）+ 右侧患者信息栏。
+ *   手机  <900px —— 单列流式：顶栏 → 病床 2 列（帘轨改为床卡四边色条）→
+ *                   走廊横滑 → 患者信息 → 底部固定动作条。
+ */
+
+:root {
+  --bg: #f4f3ee;
+  --surface: #ffffff;
+  --navy: #172b3a;
+  --cyan: #5d9fa8;
+  --amber: #c59b4a;
+  --amber-ink: #8a6420;
+  --red: #b95555;
+  --muted: #6d7779;
+  --border: #d7d8d2;
+  --green: #5d8a72;
+  --wall: #ecebe3;
+  --floor-line: #e4e3d8;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  --font-display: "Iowan Old Style", Palatino, "Songti SC", serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--navy);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { height: 100%; }
+
+/* ── 场景底图 ─────────────────────────────────────────────── */
+
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: auto;
+}
+
+.bg-art {
+  position: fixed;
+  inset: 0;
+  background-image: url("/assets/art/backgrounds/bg_ward_embedded.jpg");
+  background-size: cover;
+  background-position: center 30%;
+  pointer-events: none;
+}
+.bg-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(244, 243, 238, 0.58) 0%,
+    rgba(242, 240, 233, 0.85) 42%,
+    rgba(232, 232, 229, 0.93) 70%,
+    rgba(212, 219, 221, 0.97) 100%
+  );
+}
+
+/* ── 菜单 ─────────────────────────────────────────────────── */
+
+.menu-bg {
+  position: fixed;
+  inset: 0;
+  background-image: url("/assets/art/illustrations/title_ward_moon.jpg");
+  background-size: cover;
+  background-position: center;
+}
+.menu-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 24, 34, 0.72) 0%,
+    rgba(14, 24, 34, 0.3) 38%,
+    rgba(10, 18, 28, 0.62) 72%,
+    rgba(7, 12, 18, 0.94) 100%
+  );
+}
+
+.menu {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 20px 5vh;
+}
+
+.menu h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 7vw, 64px);
+  font-weight: 600;
+  color: #f4f3ee;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 14px rgba(10, 20, 30, 0.6);
+}
+
+.menu .subtitle {
+  margin: 6px 0 0;
+  font-size: 15px;
+  letter-spacing: 0.42em;
+  color: rgba(244, 243, 238, 0.75);
+}
+
+.menu .intro {
+  margin: 26px 0 8px;
+  max-width: 520px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(440px, 100%);
+  margin-top: 14px;
+}
+
+/* 00 说明关：占满左侧两行，附文字说明 */
+.menu-item.hero {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px 20px;
+  background: rgba(14, 26, 38, 0.72);
+}
+.menu-item.hero .no { min-width: 0; }
+.menu-item-desc {
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(244, 243, 238, 0.82);
+  overflow-wrap: anywhere;
+}
+.menu-item-desc + .menu-item-desc { margin-top: -2px; }
+
+@media (min-width: 900px) {
+  .menu-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+    width: min(960px, 100%);
+  }
+  .menu-item.hero { grid-row: span 2; }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(14, 26, 38, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(244, 243, 238, 0.18);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 16.5px;
+  color: #f4f3ee;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.menu-item:hover { border-color: var(--cyan); background: rgba(20, 36, 50, 0.68); box-shadow: 0 2px 14px rgba(93, 159, 168, 0.25); transform: translateY(-1px); }
+.menu-item:active { transform: scale(0.985); }
+.menu-item .no {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--cyan);
+  min-width: 34px;
+}
+.menu-item .t { flex: 1; min-width: 0; line-height: 1.4; }
+.menu-item.locked { opacity: 0.55; cursor: default; }
+.menu-item.locked:hover { transform: none; box-shadow: none; border-color: rgba(244, 243, 238, 0.18); background: rgba(14, 26, 38, 0.55); }
+.menu-item .lock { margin-left: auto; flex: none; font-size: 11.5px; color: rgba(244, 243, 238, 0.55); }
+
+.menu-footer {
+  margin-top: 42px;
+  padding-top: 0;
+  font-size: 13px;
+  color: rgba(244, 243, 238, 0.6);
+  cursor: pointer;
+  user-select: none;
+}
+.dev-badge {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  font-family: inherit;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.66); /* 与走廊卡片同款半透白 */
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+  z-index: 30;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.dev-badge:hover { color: var(--navy); border-color: var(--muted); }
+
+/* ── 病房顶栏 ─────────────────────────────────────────────── */
+
+.ward { display: flex; flex-direction: column; min-height: 100%; }
+
+.topbar {
+  position: relative;
+  z-index: 5;
+  /* 与病房主区同一套两列网格：左格压在病房列上，右格压在右栏列上 */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 20px;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px 26px 8px;
+}
+
+/* 左格：回合贴左、手贴病房右缘 —— 与病房地板左右边缘对齐 */
+.meter-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+.meter .label { font-size: 13px; color: var(--muted); }
+.meter .label.hi { color: var(--navy); font-weight: 600; }
+.meter .sub { font-size: 12px; color: var(--muted); }
+.meter .sub.dirty { color: var(--amber); font-weight: 600; }
+
+.hand-dots { display: flex; gap: 8px; align-items: center; }
+.hand-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--border);
+}
+.hand-dot.on { background: var(--cyan); }
+.hand-dot.on.dirty { background: var(--amber); }
+.hand-icon {
+  width: 40px; height: 40px;
+  object-fit: contain;
+  margin-right: 2px;
+}
+
+.topbar-buttons { display: flex; gap: 16px; justify-self: end; }
+.link-btn {
+  background: none; border: none; padding: 2px 0;
+  font-size: 13px; color: var(--muted);
+  cursor: pointer; text-align: right; font-family: inherit;
+}
+.link-btn:hover { color: var(--navy); }
+
+.flash-line {
+  min-height: 22px;
+  padding: 0 22px;
+  font-size: 14px;
+  color: var(--cyan);
+  opacity: 0;
+}
+.flash-line.show { animation: flashFade 2.4s ease forwards; }
+@keyframes flashFade {
+  0% { opacity: 0; } 8% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; }
+}
+
+/* ── 主区：左病房 + 右信息栏 ──────────────────────────────── */
+
+.ward-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 20px;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 6px 26px 132px;
+  align-items: start;
+}
+
+.ward-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.floor {
+  position: relative;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 20px 14px;
+}
+
+/* 病房地板网格：两排床。帘幕直接盖在床卡上，不再有轨缝格。 */
+.bed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto;
+  gap: 12px;
+}
+
+.bed-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px 12px;
+  cursor: pointer;
+  min-width: 0;
+  min-height: 0;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+/* 桌面显式落位（CSS 变量由 ward-view 写入；手机媒体查询不启用，回到自动流式） */
+@media (min-width: 900px) {
+  .bed-card { grid-column: var(--gc); grid-row: var(--gr); }
+}
+.bed-card:hover { border-color: var(--cyan); }
+.bed-card.selected,
+.bed-card.spotlight {
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 0 3px rgba(93, 159, 168, 0.15);
+}
+
+/* 隔离帘幕：半透明青纱盖在床画面上，竖褶 + 顶部帘轨杆，患者仍隐约可见 */
+.curtain-drape {
+  position: absolute;
+  inset: -3px -2px 0;
+  z-index: 4;
+  border-radius: 4px;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(129, 186, 194, 0.52) 0 7px,
+    rgba(93, 159, 168, 0.3) 7px 14px,
+    rgba(236, 246, 247, 0.48) 14px 21px
+  );
+  box-shadow: inset 0 -10px 14px rgba(31, 74, 84, 0.22);
+  animation: drapeIn 0.3s ease-out;
+}
+.curtain-drape::before {
+  content: "";
+  position: absolute;
+  left: -4px; right: -4px; top: -2px;
+  height: 4px;
+  background: var(--navy);
+  border-radius: 2px;
+}
+@keyframes drapeIn {
+  from { transform: translateY(-45%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.bed-head { display: flex; align-items: center; gap: 8px; }
+.bed-no { font-size: 12.5px; color: var(--muted); letter-spacing: 0.04em; }
+.bed-here { font-size: 12px; color: var(--cyan); }
+.lamp {
+  width: 12px; height: 12px; border-radius: 50%;
+  margin-left: auto; flex: none;
+}
+.lamp.a0 { background: var(--green); }
+.lamp.a1 { background: var(--amber); animation: pulseSlow 1.9s ease-in-out infinite; }
+.lamp.a2 { background: var(--red); animation: pulseFast 0.96s ease-in-out infinite; }
+@keyframes pulseSlow { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes pulseFast { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.bed-art {
+  position: relative;
+  height: 116px;
+  margin: 8px 0 6px;
+  pointer-events: none;
+}
+.bed-art img {
+  position: absolute;
+  mix-blend-mode: multiply;
+  object-fit: contain;
+}
+.bed-art .bed-img { inset: 0; width: 100%; height: 100%; }
+.bed-art .bed-img.empty { opacity: 0.45; }
+.bed-art .patient-img {
+  left: 20%; top: 2%;
+  width: 68%; height: 98%;
+  object-position: center top;
+}
+.bed-art .stain-img {
+  inset: 12% 8%;
+  width: 84%; height: 76%;
+  object-fit: cover;
+}
+.stain-img.risk1 { opacity: 0.2; }
+.stain-img.risk2 { opacity: 0.34; }
+
+.bed-complaint { font-size: 16px; color: var(--navy); line-height: 1.45; overflow-wrap: anywhere; }
+.bed-empty-label { font-size: 16px; color: var(--muted); margin: 12px 0 8px; }
+.bed-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.bed-count { font-size: 12px; margin-top: 4px; }
+.bed-count.urgent { color: var(--red); }
+.bed-count.warn { color: var(--amber); }
+.bed-status { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+.bed-alarm { font-size: 11.5px; margin-top: 4px; line-height: 1.5; }
+.bed-alarm.amber { color: var(--amber-ink); }
+.bed-alarm.red { color: var(--red); }
+.bed-alarm.green { color: var(--green); }
+
+/* 传染信号 chip：被撞过或源已揭示才亮；本回合末会升档时变红并加重 */
+.bed-infect {
+  font-size: 11.5px;
+  margin-top: 4px;
+  line-height: 1.5;
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+  max-width: 100%;
+}
+.bed-infect.amber { color: var(--amber-ink); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+.bed-infect.red {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  font-weight: 600;
+  animation: infect-pulse 1.6s ease-in-out infinite;
+}
+@keyframes infect-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* 检测扫描线（动作反馈，一次性 class） */
+.bed-card.scanning::after {
+  content: "";
+  position: absolute;
+  top: 8%; bottom: 8%; left: 0;
+  width: 3px;
+  background: var(--cyan);
+  animation: scanBeam 0.5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes scanBeam {
+  0% { left: 2%; opacity: 0.9; }
+  100% { left: 96%; opacity: 0; }
+}
+/* 出院绿环（动作反馈） */
+.bed-card.discharged::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--green);
+  border-radius: 10px;
+  animation: ringOut 0.55s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes ringOut {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+/* ── 走廊 ─────────────────────────────────────────────────── */
+
+.corridor {
+  position: relative;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 18px;
+  overflow: hidden;
+}
+.corridor .queue-art {
+  position: absolute;
+  right: -20px; top: -30px;
+  width: 190px; height: 190px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.corridor-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.corridor-title { font-size: 13px; color: var(--muted); }
+.corridor-title.hi { color: var(--navy); font-weight: 600; }
+.corridor-title.over { color: var(--amber-ink); font-weight: 600; }
+.corridor-title .sanitizer {
+  width: 30px; height: 30px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  vertical-align: -10px;
+  margin-right: 4px;
+}
+.queue-row {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.queue-card {
+  flex: none;
+  width: 172px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.queue-card.first { border: 2px solid var(--cyan); }
+.queue-card .name { font-size: 13px; color: var(--navy); overflow-wrap: anywhere; }
+.queue-card .sub { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; color: var(--muted); }
+.queue-card .wait { font-size: 10px; color: var(--cyan); margin-top: 2px; }
+.queue-card .lamp { margin-left: 0; width: 9px; height: 9px; }
+.queue-empty { font-size: 15px; color: var(--muted); margin-top: 8px; }
+.queue-rest { flex: none; align-self: center; font-size: 13px; color: var(--muted); width: auto; padding: 0 6px; }
+
+/* ── 动作按钮 ─────────────────────────────────────────────── */
+
+/* 动作条全端固定底部 —— 任何滚动位置都能动手（桌面居中一行，手机网格铺满） */
+.actions-wrap {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  background: rgba(245, 243, 238, 0.98);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 26px rgba(20, 35, 48, 0.09);
+  padding: 12px 26px calc(12px + env(safe-area-inset-bottom));
+}
+.actions {
+  /* 列数由 JS 写进 --n：所有按钮落进同一行、拉伸同高，顶端底端严格对齐 */
+  display: grid;
+  grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr));
+  align-items: stretch;
+  gap: 12px;
+  /* 与病房主区同宽 —— 动作条不再缩在中间一小段 */
+  max-width: 1188px;
+  width: 100%;
+}
+.action-btn {
+  background: var(--surface);
+  border: 1px solid var(--navy);
+  border-radius: 12px;
+  padding: 10px 14px 9px;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  /* 按钮被网格拉成同高后，浏览器默认会把内容垂直居中 —— 显式钉回顶部 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.action-btn:hover { border-color: var(--cyan); box-shadow: 0 2px 10px rgba(93, 159, 168, 0.16); }
+.action-btn:active { transform: scale(0.97); }
+.action-btn .label { font-size: 16px; color: var(--navy); }
+.action-btn .caption {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.action-btn.disabled { border-color: var(--border); cursor: not-allowed; }
+.action-btn.disabled .label { color: var(--muted); }
+.action-btn.disabled:active { transform: none; }
+.action-btn.spotlight { border: 2px solid var(--cyan); box-shadow: 0 0 0 3px rgba(93, 159, 168, 0.15); }
+
+/* ── 一次性贴士横幅（贴病房列顶部，随滚动吸附，任何位置都看得见） ── */
+
+.tip-toast-wrap {
+  position: sticky;
+  top: 10px;
+  z-index: 25;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.tip-toast {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  width: min(860px, 100%);
+  box-sizing: border-box;
+  background: rgba(23, 43, 58, 0.96);
+  border: 1px solid var(--cyan);
+  border-left: 8px solid var(--cyan);
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 12px 32px rgba(20, 35, 48, 0.3);
+  animation: toastIn 0.2s ease;
+}
+.tip-toast .tip-title { font-size: 13.5px; color: var(--cyan); flex: none; }
+.tip-toast .tip-body { font-size: 12.5px; color: #f2f1ea; line-height: 1.55; }
+.tip-toast .tip-tag { margin-left: auto; flex: none; font-size: 10.5px; color: rgba(244, 243, 238, 0.55); }
+.tip-toast.bye { animation: toastOut 0.6s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; } }
+
+/* ── 右侧患者信息栏 ───────────────────────────────────────── */
+
+/* ── 右栏列：设置行（返回 / 音效）+ 患者信息栏 ─────────────── */
+
+.side-col {
+  position: sticky;
+  top: 12px;
+  min-width: 0;
+}
+
+.side-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.side-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+}
+.side-panel .sub-title { font-size: 12px; color: var(--muted); }
+.side-panel .block { margin-top: 10px; }
+.side-panel .amber { color: var(--amber-ink); }
+.side-panel .cyan { color: var(--cyan); }
+.side-panel .red { color: var(--red); }
+.side-panel .green { color: var(--green); }
+.side-panel .muted { color: var(--muted); }
+.side-panel .vitals { margin-top: 8px; }
+.side-panel .vitals div { display: flex; justify-content: space-between; gap: 10px; }
+.side-panel .reveal-list { margin-top: 8px; }
+.side-panel .gap-list { margin-top: 4px; }
+.side-panel .gap-list div { margin-top: 3px; }
+.side-panel hr { border: none; border-top: 1px solid var(--border); margin: 14px 0 10px; }
+.side-panel .urgent-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; }
+.side-panel .urgent-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 5px; }
+.side-panel .urgent-row.red { color: var(--red); }
+.side-panel .urgent-row .where { overflow-wrap: anywhere; }
+
+/* ── 覆盖层：开场卡 / 结算 ─────────────────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+}
+.overlay.dim { background: rgba(23, 43, 58, 0.5); animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── 进关黑幕标题：黑底居中，约 2.4 秒自动淡出，点击可跳过 ── */
+.title-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #0a0e13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: fadeIn 0.25s ease;
+}
+.title-intro.out { animation: titleOut 0.38s ease forwards; }
+@keyframes titleOut { to { opacity: 0; } }
+.title-intro .title-night {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 6vw, 62px);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #f4f3ee;
+}
+.title-intro .title-name {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.6vw, 26px);
+  letter-spacing: 0.3em;
+  color: var(--cyan);
+}
+.title-intro .title-goal {
+  margin-top: 26px;
+  max-width: 560px;
+  padding: 0 24px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(244, 243, 238, 0.55);
+}
+
+.overlay-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: min(580px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 22px 26px;
+  animation: popIn 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+@keyframes popIn { from { transform: scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.overlay-panel .step { font-size: 12.5px; color: var(--muted); text-align: center; }
+.overlay-panel h3 {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+}
+/* 插画全部 1600×900 —— 槽位直接用 16:9 盒子，整图完整显示，不再裁掉一半 */
+.overlay-panel .scene-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 14px 0 4px;
+  display: block;
+}
+.overlay-panel .body { font-size: 16px; line-height: 1.9; margin-top: 10px; }
+.overlay-panel .overlay-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+
+.primary-btn {
+  background: var(--navy);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 26px;
+  font-size: 17px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.primary-btn:hover { background: #23405a; }
+.primary-btn:active { transform: scale(0.97); }
+
+/* 结算：两步弹窗，与开场贴士共用同一套 overlay-panel 骨架 */
+.result-pop { width: min(640px, 100%); }
+.result-pop h2 {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 600;
+  text-align: center;
+}
+.result-pop.win h2 { color: var(--cyan); }
+.result-pop.lose h2 { color: var(--red); }
+.result-stats { text-align: center; font-size: 14px; color: var(--muted); margin-top: 6px; }
+.result-cheer { text-align: center; font-size: 15px; color: var(--muted); margin-top: 8px; }
+.result-recap { margin-top: 10px; text-align: center; font-size: 13.5px; color: var(--red); }
+.result-pop h3 {
+  margin: 12px 0 8px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+.cause-list {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(20, 35, 48, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.review-line { margin-bottom: 12px; }
+.review-line:last-child { margin-bottom: 0; }
+.review-line .kind {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.review-line .kind.fatal { color: var(--red); }
+.review-line .kind.cause, .review-line .kind.gap { color: var(--amber-ink); }
+.review-line .kind.advice { color: var(--cyan); }
+.review-line .kind.good { color: var(--green); }
+.review-line .body { font-size: 13px; line-height: 1.65; margin-top: 2px; }
+
+.death-tip { margin-bottom: 14px; }
+.death-tip .head-row { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.death-tip .head { font-size: 13px; color: var(--cyan); font-weight: 600; }
+.death-tip .source { font-size: 10px; color: var(--muted); white-space: nowrap; }
+.death-tip .seg { font-size: 12px; line-height: 1.6; margin-top: 3px; }
+.death-tip .seg.reality { color: var(--amber-ink); }
+.result-disclaimer { font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.5; }
+
+.primary-btn.ghost {
+  background: transparent;
+  color: var(--navy);
+  border: 1.5px solid var(--navy);
+}
+.primary-btn.ghost:hover { background: rgba(23, 43, 58, 0.07); }
+
+/* ── 手机布局 ─────────────────────────────────────────────── */
+
+@media (max-width: 899px) {
+  .bg-art { background-position: 62% top; }
+
+  .topbar { display: flex; flex-wrap: wrap; padding: 12px 12px 4px; gap: 10px; }
+  /* 回合、手分两行：一行放不下，逐行左对齐 */
+  .meter-group { width: 100%; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .meter { min-height: 34px; gap: 8px; }
+  .topbar-buttons { flex-direction: row; gap: 14px; width: 100%; }
+  .link-btn { text-align: left; }
+
+  .ward-main { grid-template-columns: 1fr; padding: 2px 12px 136px; gap: 12px; }
+
+  /* 走廊挪到最上面：床不需要一屏看完，等床的人先看到（贴士横幅在它之上） */
+  .ward-col { display: flex; }
+  .corridor { order: -1; }
+  .tip-toast-wrap { order: -2; top: 6px; }
+
+  /* 贴士横幅三段改比例：标题与角标收窄，长正文占大头（原来两侧挤占，看着像等分） */
+  .tip-toast { gap: 10px; padding: 9px 12px; }
+  .tip-toast .tip-title { flex: 0 1 27%; min-width: 0; font-size: 12.5px; }
+  .tip-toast .tip-body { flex: 1 1 0; min-width: 0; }
+  .tip-toast .tip-tag { flex: 0 1 18%; min-width: 0; margin-left: 0; font-size: 10px; line-height: 1.45; }
+
+  /* 病床按电脑端顺时针转 90°：第一列竖排 1·2·3·4，第二列 5·6·7·8
+     —— 屏幕上的相邻 = 传染图上的相邻，帘子逻辑与桌面完全一致 */
+  .bed-grid {
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .bed-card { grid-column: auto; grid-row: auto; }
+  .bed-card.tall-row { grid-row: auto; }
+  .bed-card.row-gap::after { display: none; }
+
+  .bed-art { height: 96px; }
+  .bed-complaint { font-size: 15px; }
+
+  .hand-icon { width: 34px; height: 34px; }
+
+  /* 手机没有右栏：患者情况改为点床弹卡（.bed-sheet），设置留在顶栏 */
+  .ward-main > .side-col { display: none; }
+  /* 「查看详情」浮动钮：点床只选中做操作，点这里才弹患者详情卡 */
+  .detail-fab {
+    position: fixed;
+    right: 10px;
+    bottom: calc(124px + env(safe-area-inset-bottom));
+    z-index: 21;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: var(--surface);
+    border: 1px solid var(--navy);
+    border-radius: 999px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--navy);
+    box-shadow: 0 10px 26px rgba(20, 35, 48, 0.22);
+    cursor: pointer;
+    animation: popIn 0.2s ease;
+  }
+  .detail-fab:active { transform: scale(0.97); }
+
+  .bed-sheet {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    /* 抬离动作条，留出呼吸空隙 */
+    bottom: calc(124px + env(safe-area-inset-bottom));
+    z-index: 22;
+    /* 外壳自己不滚：圆角边界钉死，只有内层内容滑 */
+    display: flex;
+    flex-direction: column;
+    max-height: 56vh;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 14px 34px rgba(20, 35, 48, 0.3);
+    overflow: hidden;
+    animation: popIn 0.2s ease;
+  }
+  .bed-sheet-close {
+    flex: none;
+    align-self: flex-end;
+    margin: 8px 10px 0;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .bed-sheet-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    border-radius: 0 0 16px 16px;
+  }
+  .bed-sheet .side-panel {
+    position: static;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding-bottom: 14px;
+  }
+
+  /* 动作条固定底部：3 列网格铺满，全部动作一屏可见不用滑 */
+  .actions-wrap { justify-content: stretch; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    max-width: none;
+  }
+  .action-btn { padding: 7px 6px 6px; }
+  .action-btn .label { font-size: 15px; }
+  .action-btn .caption { display: none; }
+}

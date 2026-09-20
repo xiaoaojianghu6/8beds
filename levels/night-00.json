@@ -1,0 +1,209 @@
+{
+  "id": "night-00",
+  "title": "交班",
+  "draft": false,
+  "turns": 4,
+  "actionPoints": 3,
+  "enabledActions": [
+    "ADMIT",
+    "STABILIZE"
+  ],
+  "rules": {
+    "infectionEnabled": false,
+    "corridorGraceTurns": 1,
+    "maxDeaths": 0,
+    "requiredDischarges": "ALL"
+  },
+  "initialPatients": [
+    {
+      "id": "A01",
+      "archetype": "TRAUMA",
+      "visible": {
+        "chiefComplaint": "失血",
+        "utterance": "血一直在流，止不住。",
+        "acuity": 2,
+        "vitals": [
+          {
+            "label": "血压",
+            "value": "82/48",
+            "flag": "critical"
+          },
+          {
+            "label": "心率",
+            "value": "126",
+            "flag": "high"
+          },
+          {
+            "label": "面色",
+            "value": "苍白"
+          },
+          {
+            "label": "皮肤",
+            "value": "冷汗"
+          },
+          {
+            "label": "外伤",
+            "value": "左季肋区撞击伤"
+          }
+        ],
+        "keyClue": "血压往下掉、心跳越来越快 —— 说明血还在流，没有止住。"
+      },
+      "rules": {
+        "deteriorationRate": 2,
+        "transmission": "NONE",
+        "axisIntervention": "DIRECT",
+        "scanResult": "床旁超声：腹腔游离液体；Hb 62 g/L",
+        "planA": "止血 + 液体复苏"
+      },
+      "hidden": {
+        "riskProfile": "trauma",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 1
+      }
+    }
+  ],
+  "arrivalSchedule": [
+    [
+      {
+        "id": "A02",
+        "archetype": "TRAUMA",
+        "visible": {
+          "chiefComplaint": "失血",
+          "utterance": "撞了一下，现在头晕得厉害。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "96/60",
+              "flag": "low"
+            },
+            {
+              "label": "心率",
+              "value": "112",
+              "flag": "high"
+            },
+            {
+              "label": "皮肤",
+              "value": "湿冷"
+            }
+          ],
+          "keyClue": "血压还没掉到最低，但心跳已经快到极限 —— 他正在往下滑。"
+        },
+        "rules": {
+          "deteriorationRate": 2,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "scanResult": "复查 Hb 88 g/L，较上次下降",
+          "planA": "止血 + 液体复苏"
+        },
+        "hidden": {
+          "riskProfile": "trauma",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "A03",
+        "archetype": "TRAUMA",
+        "visible": {
+          "chiefComplaint": "失血",
+          "utterance": "伤口又渗出来了，越来越多。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "104/68"
+            },
+            {
+              "label": "心率",
+              "value": "108",
+              "flag": "high"
+            },
+            {
+              "label": "敷料",
+              "value": "持续渗血"
+            }
+          ],
+          "keyClue": "出血一次比一次多 —— 他不会自己好起来。"
+        },
+        "rules": {
+          "deteriorationRate": 2,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "scanResult": "敷料称重：累计失血量仍在增加",
+          "planA": "加压包扎 + 缝合"
+        },
+        "hidden": {
+          "riskProfile": "trauma",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "A04",
+        "archetype": "TRAUMA",
+        "visible": {
+          "chiefComplaint": "失血",
+          "utterance": "扶着墙进来的，说眼前发黑。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "92/58",
+              "flag": "low"
+            },
+            {
+              "label": "心率",
+              "value": "118",
+              "flag": "high"
+            },
+            {
+              "label": "意识",
+              "value": "嗜睡，可唤醒"
+            }
+          ],
+          "keyClue": "人开始糊涂，说明血已经不够供到脑子了。"
+        },
+        "rules": {
+          "deteriorationRate": 2,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "scanResult": "Hb 76 g/L；乳酸 3.1 mmol/L",
+          "planA": "止血 + 液体复苏"
+        },
+        "hidden": {
+          "riskProfile": "trauma",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ]
+  ]
+}

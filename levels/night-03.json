@@ -1,0 +1,415 @@
+{
+  "id": "night-03",
+  "title": "帘后",
+  "draft": false,
+  "turns": 9,
+  "actionPoints": 3,
+  "enabledActions": [
+    "ADMIT",
+    "SCAN",
+    "STABILIZE",
+    "ISOLATE"
+  ],
+  "rules": {
+    "infectionEnabled": true,
+    "corridorGraceTurns": 2,
+    "isolateCost": 1,
+    "maxDeaths": 0,
+    "requiredDischarges": "ALL"
+  },
+  "initialPatients": [
+    {
+      "id": "F01",
+      "archetype": "HEMORRHAGE",
+      "visible": {
+        "chiefComplaint": "血止不住",
+        "utterance": "血一直在流，压着也止不住。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "血压",
+            "value": "84/48",
+            "flag": "critical"
+          },
+          {
+            "label": "心率",
+            "value": "132",
+            "flag": "high"
+          },
+          {
+            "label": "外伤",
+            "value": "左大腿贯通伤"
+          }
+        ],
+        "keyClue": "1 号床。老面孔，一眼认得 —— 但他在流血，你不能先管别人。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "NONE",
+        "axisIntervention": "DIRECT",
+        "scanResult": "床旁超声：股动脉活动性出血",
+        "planA": "止血 + 液体复苏"
+      },
+      "hidden": {
+        "riskProfile": "trauma",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 1
+      }
+    },
+    {
+      "id": "P01",
+      "archetype": "SOURCE",
+      "visible": {
+        "chiefComplaint": "铁锈色痰",
+        "utterance": "烧了六天，痰是铁锈色的，右边胸口一直闷。",
+        "acuity": 2,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "39.2",
+            "flag": "high"
+          },
+          {
+            "label": "呼吸",
+            "value": "28",
+            "flag": "high"
+          },
+          {
+            "label": "SpO₂",
+            "value": "89%",
+            "flag": "low"
+          },
+          {
+            "label": "右肺底",
+            "value": "湿啰音"
+          }
+        ],
+        "keyClue": "3 号床。他咳得最凶、烧得最高 —— 全病房最像「危险人物」的那个人。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "HIGH",
+        "axisIntervention": "SCAN_FIRST",
+        "scanResult": "胸片：右下肺实变；痰涂片见成对革兰阳性球菌",
+        "planA": "目标抗感染 + 呼吸支持 + 飞沫隔离"
+      },
+      "hidden": {
+        "riskProfile": "source",
+        "transmission": "HIGH",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 3
+      }
+    },
+    {
+      "id": "S01",
+      "archetype": "MILD",
+      "visible": {
+        "chiefComplaint": "发抖",
+        "utterance": "有点冷，发抖，没什么力气。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "38.6",
+            "flag": "high"
+          },
+          {
+            "label": "血压",
+            "value": "98/56",
+            "flag": "low"
+          },
+          {
+            "label": "心率",
+            "value": "114",
+            "flag": "high"
+          },
+          {
+            "label": "尿量",
+            "value": "明显减少"
+          }
+        ],
+        "keyClue": "5 号床。他看起来最轻，实际上死得最快 —— 不只是发烧，是血已经供不上全身了。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "NONE",
+        "axisIntervention": "DIRECT",
+        "scanResult": "血乳酸 3.6 mmol/L；PCT 9 ng/mL",
+        "planA": "抗感染 + 液体复苏"
+      },
+      "hidden": {
+        "riskProfile": "mild",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 7
+      }
+    },
+    {
+      "id": "M01",
+      "archetype": "CARRIER",
+      "visible": {
+        "chiefComplaint": "睡不着",
+        "utterance": "就是睡不着，别的没什么，你们忙你们的。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "36.8"
+          },
+          {
+            "label": "血压",
+            "value": "126/78"
+          },
+          {
+            "label": "心率",
+            "value": "76"
+          },
+          {
+            "label": "呼吸",
+            "value": "16"
+          }
+        ],
+        "keyClue": "6 号床。翻遍他的卡，找不到一个不正常的值。他到底为什么在这儿？"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "HIGH",
+        "axisIntervention": "SCAN_FIRST",
+        "scanResult": "鼻拭子培养：查出耐甲氧西林金黄色葡萄球菌 —— 他身上带菌，但自己不发病",
+        "planA": "接触隔离 + 清除身上的菌"
+      },
+      "hidden": {
+        "riskProfile": "carrier",
+        "transmission": "HIGH",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 6
+      }
+    },
+    {
+      "id": "D01",
+      "archetype": "CRITICAL",
+      "visible": {
+        "chiefComplaint": "胸口像被撕开",
+        "utterance": "像被从里面撕开，从胸口一直撕到后背。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "血压(左)",
+            "value": "188/104",
+            "flag": "high"
+          },
+          {
+            "label": "血压(右)",
+            "value": "156/90"
+          },
+          {
+            "label": "起病",
+            "value": "突发即达最高峰"
+          },
+          {
+            "label": "既往",
+            "value": "高血压史"
+          }
+        ],
+        "keyClue": "7 号床。像被撕开 · 一上来就最疼 · 两只胳膊血压差了 32 —— 上一夜学过：这种要把血压压下来，不能按血管堵那样用药。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "NONE",
+        "axisIntervention": "MIRROR",
+        "mirrorBranch": "B",
+        "scanResult": "床旁超声：主动脉根部增宽，可见内膜片；双上肢血压差 32 mmHg",
+        "planA": "再灌注治疗",
+        "planB": "控压 + 心外会诊"
+      },
+      "hidden": {
+        "riskProfile": "critical",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 2
+      }
+    }
+  ],
+  "arrivalSchedule": [
+    [
+      {
+        "id": "G01",
+        "archetype": "CRITICAL",
+        "visible": {
+          "chiefComplaint": "胸口像被压住",
+          "utterance": "胸口压了块大石头，下巴和左臂也酸。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "138/86"
+            },
+            {
+              "label": "心率",
+              "value": "96"
+            },
+            {
+              "label": "出汗",
+              "value": "大汗"
+            },
+            {
+              "label": "起病",
+              "value": "逐渐加重 40 分钟"
+            }
+          ],
+          "keyClue": "像被压住 · 疼往左胳膊和下巴跑 · 慢慢加重 —— 像血管堵了。"
+        },
+        "rules": {
+          "deteriorationRate": 0,
+          "transmission": "NONE",
+          "axisIntervention": "MIRROR",
+          "mirrorBranch": "A",
+          "scanResult": "心电图：II、III、aVF 导联 ST 段抬高",
+          "planA": "再灌注治疗",
+          "planB": "控压 + 心外会诊"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "K01",
+        "archetype": "HEMORRHAGE",
+        "visible": {
+          "chiefComplaint": "血止不住",
+          "utterance": "血一直在流，止不住。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "92/58",
+              "flag": "low"
+            },
+            {
+              "label": "心率",
+              "value": "118",
+              "flag": "high"
+            },
+            {
+              "label": "外伤",
+              "value": "左前臂撕裂伤"
+            }
+          ],
+          "keyClue": "老面孔，一眼认出来，治起来最便宜。"
+        },
+        "rules": {
+          "deteriorationRate": 0,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "scanResult": "床旁超声：皮下血肿，未见活动性出血",
+          "planA": "止血 + 液体复苏"
+        },
+        "hidden": {
+          "riskProfile": "trauma",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "B01",
+        "archetype": "CRITICAL",
+        "visible": {
+          "chiefComplaint": "偏瘫",
+          "utterance": "早上起来右边手动不了，想说话说不出来。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "166/94",
+              "flag": "high"
+            },
+            {
+              "label": "心率",
+              "value": "90 不齐"
+            },
+            {
+              "label": "右侧肌力",
+              "value": "2 级"
+            },
+            {
+              "label": "头痛",
+              "value": "无"
+            }
+          ],
+          "keyClue": "不头痛 + 心跳不齐 —— 上一夜学过：这是血管堵的那一种。"
+        },
+        "rules": {
+          "deteriorationRate": 0,
+          "transmission": "NONE",
+          "axisIntervention": "MIRROR",
+          "mirrorBranch": "A",
+          "scanResult": "头颅 CT：未见出血",
+          "planA": "再灌注治疗",
+          "planB": "降颅压 + 神外会诊"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ]
+  ]
+}

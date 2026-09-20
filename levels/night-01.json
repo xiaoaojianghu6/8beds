@@ -1,0 +1,220 @@
+{
+  "id": "night-01",
+  "title": "先分真假",
+  "draft": false,
+  "turns": 5,
+  "actionPoints": 3,
+  "enabledActions": [
+    "ADMIT",
+    "SCAN",
+    "STABILIZE"
+  ],
+  "rules": {
+    "infectionEnabled": false,
+    "corridorGraceTurns": 1,
+    "maxDeaths": 0,
+    "requiredDischarges": "ALL"
+  },
+  "initialPatients": [
+    {
+      "id": "B01",
+      "archetype": "CRITICAL",
+      "visible": {
+        "chiefComplaint": "偏瘫",
+        "utterance": "早上起来右边手动不了，想说话说不出来。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "血压",
+            "value": "168/92",
+            "flag": "high"
+          },
+          {
+            "label": "心率",
+            "value": "88 不齐"
+          },
+          {
+            "label": "右侧肌力",
+            "value": "2 级"
+          },
+          {
+            "label": "头痛",
+            "value": "无"
+          }
+        ],
+        "keyClue": "睡醒后发现 · 不头痛 · 心跳不齐 —— 像血管被堵住了。"
+      },
+      "rules": {
+        "deteriorationRate": 1,
+        "transmission": "NONE",
+        "axisIntervention": "MIRROR",
+        "mirrorBranch": "A",
+        "scanResult": "头颅 CT：未见出血",
+        "planA": "再灌注治疗",
+        "planB": "降颅压 + 神外会诊"
+      },
+      "hidden": {
+        "riskProfile": "critical",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 1
+      }
+    }
+  ],
+  "arrivalSchedule": [
+    [
+      {
+        "id": "A01",
+        "archetype": "TRAUMA",
+        "visible": {
+          "chiefComplaint": "失血",
+          "utterance": "血一直在流，止不住。",
+          "acuity": 2,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "88/52",
+              "flag": "critical"
+            },
+            {
+              "label": "心率",
+              "value": "124",
+              "flag": "high"
+            },
+            {
+              "label": "外伤",
+              "value": "左下腹刺伤"
+            }
+          ],
+          "keyClue": "这是上一夜那个病例 —— 一眼就该认出来，直接动手。"
+        },
+        "rules": {
+          "deteriorationRate": 1,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "scanResult": "床旁超声：腹腔游离液体",
+          "planA": "止血 + 液体复苏"
+        },
+        "hidden": {
+          "riskProfile": "trauma",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "B02",
+        "archetype": "CRITICAL",
+        "visible": {
+          "chiefComplaint": "头痛",
+          "utterance": "头一下子炸开，我这辈子没这么疼过。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "210/118",
+              "flag": "critical"
+            },
+            {
+              "label": "心率",
+              "value": "58",
+              "flag": "low"
+            },
+            {
+              "label": "呕吐",
+              "value": "2 次"
+            },
+            {
+              "label": "左侧肌力",
+              "value": "下降"
+            },
+            {
+              "label": "起病",
+              "value": "活动中"
+            }
+          ],
+          "keyClue": "正在活动的时候突然发作 · 这辈子最剧烈的一次头痛 · 血压很高、心跳反而变慢 —— 这是血管破了出血，不是血管被堵住。"
+        },
+        "rules": {
+          "deteriorationRate": 0,
+          "transmission": "NONE",
+          "axisIntervention": "MIRROR",
+          "mirrorBranch": "B",
+          "scanResult": "头颅 CT：右侧基底节区高密度影",
+          "planA": "再灌注治疗",
+          "planB": "降颅压 + 神外会诊"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "B03",
+        "archetype": "CRITICAL",
+        "visible": {
+          "chiefComplaint": "偏瘫",
+          "utterance": "刚还好好的，忽然嘴就歪了。",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "158/90",
+              "flag": "high"
+            },
+            {
+              "label": "心率",
+              "value": "92 不齐"
+            },
+            {
+              "label": "右侧肌力",
+              "value": "3 级"
+            },
+            {
+              "label": "头痛",
+              "value": "无"
+            }
+          ],
+          "keyClue": "同样是睡醒后发作、不头痛 —— 和 1 号床同一种病，可以直接治。"
+        },
+        "rules": {
+          "deteriorationRate": 0,
+          "transmission": "NONE",
+          "axisIntervention": "DIRECT",
+          "planA": "再灌注治疗"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ]
+  ]
+}

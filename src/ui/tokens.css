@@ -1,0 +1,33 @@
+:root {
+  --bg: #f4f3ee;
+  --surface: #ffffff;
+  --navy: #172b3a;
+  --cyan: #5d9fa8;
+  --amber: #c59b4a;
+  /* 琥珀正文墨色：同一色相压暗，白底对比度 5.35:1（亮琥珀只有 2.57:1，当正文太淡）*/
+  --amber-ink: #8a6420;
+  --red: #b95555;
+  --muted: #6d7779;
+  --border: #d7d8d2;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--navy);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app,
+#game-container {
+  width: 100%;
+  height: 100%;
+}
+
+#game-container canvas {
+  display: block;
+}

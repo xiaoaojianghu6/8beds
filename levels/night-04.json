@@ -1,0 +1,289 @@
+{
+  "id": "night-04",
+  "title": "看不见的手",
+  "turns": 8,
+  "actionPoints": 3,
+  "enabledActions": [
+    "ADMIT",
+    "SCAN",
+    "STABILIZE",
+    "ISOLATE",
+    "HAND_HYGIENE"
+  ],
+  "rules": {
+    "infectionEnabled": true,
+    "corridorGraceTurns": 2,
+    "maxDeaths": 0,
+    "requiredDischarges": "ALL",
+    "handHygieneEnabled": true,
+    "bedUnitEnabled": true
+  },
+  "initialPatients": [
+    {
+      "id": "H01",
+      "archetype": "HEMORRHAGE",
+      "visible": {
+        "chiefComplaint": "失血",
+        "utterance": "血一直在流，止不住。",
+        "acuity": 2,
+        "vitals": [
+          {
+            "label": "血压",
+            "value": "86/50",
+            "flag": "critical"
+          },
+          {
+            "label": "心率",
+            "value": "122"
+          },
+          {
+            "label": "皮肤",
+            "value": "湿冷"
+          }
+        ],
+        "keyClue": "血压在掉、心跳又快又不稳 —— 先把他稳住。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "NONE",
+        "axisIntervention": "DIRECT"
+      },
+      "hidden": {
+        "riskProfile": "critical",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 1
+      }
+    },
+    {
+      "id": "P01",
+      "archetype": "SOURCE",
+      "visible": {
+        "chiefComplaint": "铁锈色痰",
+        "utterance": "烧了五天，咳出来的痰是铁锈色的。",
+        "acuity": 2,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "39.2",
+            "flag": "high"
+          },
+          {
+            "label": "呼吸",
+            "value": "26",
+            "flag": "high"
+          },
+          {
+            "label": "SpO₂",
+            "value": "91",
+            "flag": "low"
+          }
+        ],
+        "keyClue": "典型肺炎 —— 化验结果出来之前，谁都可能被他传染。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "HIGH",
+        "axisIntervention": "SCAN_FIRST",
+        "scanResult": "痰培养：肺炎链球菌生长 —— 目标抗感染 + 飞沫隔离",
+        "planA": "目标抗感染 + 呼吸支持"
+      },
+      "hidden": {
+        "riskProfile": "source",
+        "transmission": "HIGH",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 2
+      }
+    },
+    {
+      "id": "M01",
+      "archetype": "CARRIER",
+      "visible": {
+        "chiefComplaint": "看不出毛病",
+        "utterance": "我是来陪我爸的，顺带让你们给看了看。",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "36.6"
+          },
+          {
+            "label": "心率",
+            "value": "76"
+          },
+          {
+            "label": "呼吸",
+            "value": "16"
+          }
+        ],
+        "keyClue": "全场看起来最健康的人。没有外表线索 —— 只有检测能发现他。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "HIGH",
+        "axisIntervention": "DIRECT",
+        "scanResult": "鼻拭子：查出 MRSA 耐药菌 —— 他身上带菌，但自己没被感染",
+        "planA": "清除身上的菌 + 接触隔离"
+      },
+      "hidden": {
+        "riskProfile": "carrier",
+        "transmission": "HIGH",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 8
+      }
+    },
+    {
+      "id": "D01",
+      "archetype": "DELIRIUM",
+      "visible": {
+        "chiefComplaint": "躁动",
+        "utterance": "这是哪儿？你们要把我弄到哪儿去？！",
+        "acuity": 1,
+        "vitals": [
+          {
+            "label": "体温",
+            "value": "36.9"
+          },
+          {
+            "label": "SpO₂",
+            "value": "97"
+          },
+          {
+            "label": "行为",
+            "value": "激越，拔输液"
+          }
+        ],
+        "keyClue": "他一闹，旁边几床做治疗都要多花一只手去按住他 —— 而他自己做治疗，花的手跟别人一样。"
+      },
+      "rules": {
+        "deteriorationRate": 0,
+        "transmission": "NONE",
+        "axisIntervention": "DIRECT",
+        "disruptive": true
+      },
+      "hidden": {
+        "riskProfile": "mild",
+        "transmission": "NONE",
+        "disposition": "STABLE"
+      },
+      "revealOrder": [
+        "riskProfile",
+        "transmission",
+        "disposition"
+      ],
+      "state": {
+        "bedId": 6
+      }
+    }
+  ],
+  "arrivalSchedule": [
+    [],
+    [
+      {
+        "id": "S01",
+        "archetype": "SEPSIS",
+        "visible": {
+          "chiefComplaint": "乏力",
+          "utterance": "就是有点冷，说不上来哪儿难受……",
+          "acuity": 1,
+          "vitals": [
+            {
+              "label": "体温",
+              "value": "38.1",
+              "flag": "high"
+            },
+            {
+              "label": "血压",
+              "value": "104/66",
+              "flag": "low"
+            },
+            {
+              "label": "意识",
+              "value": "清楚"
+            }
+          ],
+          "keyClue": "看起来最轻，但体温血压都偏了 —— 这种人恰恰要先查清楚再动手。"
+        },
+        "rules": {
+          "deteriorationRate": 1,
+          "transmission": "NONE",
+          "axisIntervention": "SCAN_FIRST",
+          "scanResult": "血培养：革兰阴性菌生长 —— 全身炎症反应已经在跑，每小时都在加重。",
+          "planA": "抗感染 + 液体复苏"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ],
+    [],
+    [
+      {
+        "id": "H02",
+        "archetype": "HEMORRHAGE",
+        "visible": {
+          "chiefComplaint": "失血",
+          "utterance": "便血两天了，今天眼前发黑。",
+          "acuity": 2,
+          "vitals": [
+            {
+              "label": "血压",
+              "value": "92/54",
+              "flag": "critical"
+            },
+            {
+              "label": "心率",
+              "value": "110"
+            }
+          ],
+          "keyClue": "又是一个正在出血的 —— 但血从哪儿来？身上看不到出血的地方，先花 1 只手找到它。"
+        },
+        "rules": {
+          "deteriorationRate": 1,
+          "transmission": "NONE",
+          "axisIntervention": "SCAN_FIRST",
+          "scanResult": "血常规：血红蛋白还在往下掉 —— 出血没停，来源不在体表",
+          "planA": "止血 + 补充血容量"
+        },
+        "hidden": {
+          "riskProfile": "critical",
+          "transmission": "NONE",
+          "disposition": "STABLE"
+        },
+        "revealOrder": [
+          "riskProfile",
+          "transmission",
+          "disposition"
+        ]
+      }
+    ]
+  ]
+}

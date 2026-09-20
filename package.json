@@ -1,0 +1,30 @@
+{
+  "name": "8-beds",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "八张床 —— 确定性医疗决策谜题：纯函数规则引擎 + A* 关卡求解器配平",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "tsc --noEmit && vitest run",
+    "solve": "vite-node tools/report.ts",
+    "levels": "vite-node tools/report.ts",
+    "tune": "vite-node tools/tune.ts",
+    "gold": "vite-node tools/gold.ts",
+    "gates": "vite-node tools/curtain-gates.ts",
+    "why:lose": "vite-node tools/why-lose.ts",
+    "threat": "vite-node tools/hard-threat.ts",
+    "audit:copy": "bash tools/copy-audit.sh",
+    "audit:tips": "vite-node tools/tips-audit.ts"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2",
+    "vite": "^6.3.1",
+    "vitest": "^3.2.4"
+  }
+}
